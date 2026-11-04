@@ -36,9 +36,22 @@
         <p>Check the weather and plan your day.</p>
       </div>
 
-      <span class="date">
-        {{ today | date:'EEEE, MMMM d' }}
-      </span>
+      <div class="header-actions">
+        <span class="date">
+          {{ today | date:'EEEE, MMMM d' }}
+        </span>
+
+        <!-- TEMPERATURE UNIT TOGGLE -->
+        <button
+          class="unit-toggle"
+          (click)="toggleTemperature()"
+        >
+          °{{ unit }}
+          <span>
+            Switch to °{{ unit === 'C' ? 'F' : 'C' }}
+          </span>
+        </button>
+      </div>
     </header>
 
     <!-- SEARCH BAR -->
@@ -86,6 +99,7 @@
         <div class="location">
           <div>
             <small>CURRENT WEATHER</small>
+
             <h2>📍 {{ weather.name }}</h2>
 
             <p>
@@ -101,12 +115,18 @@
           <!-- TEMPERATURE -->
           <div>
             <h1>
-              {{ weather.main?.temp | number:'1.0-0' }}°
+              {{
+                convertTemperature(weather.main?.temp)
+                  | number:'1.0-0'
+              }}°
             </h1>
 
             <p>
               Feels like
-              {{ weather.main?.feels_like | number:'1.0-0' }}°
+              {{
+                convertTemperature(weather.main?.feels_like)
+                  | number:'1.0-0'
+              }}°
             </p>
           </div>
 
@@ -128,21 +148,27 @@
 
             <p>
               💧 Humidity
-              <strong>{{ weather.main?.humidity ?? '--' }}%</strong>
+              <strong>
+                {{ weather.main?.humidity ?? '--' }}%
+              </strong>
             </p>
 
             <p>
               💨 Wind Speed
               <strong>
-                {{ weather.wind?.speed != null
-                  ? (weather.wind.speed * 3.6 | number:'1.0-0')
-                  : '--' }} km/h
+                {{
+                  weather.wind?.speed != null
+                    ? (weather.wind.speed * 3.6 | number:'1.0-0')
+                    : '--'
+                }} km/h
               </strong>
             </p>
 
             <p>
               ☁️ Cloud Cover
-              <strong>{{ weather.clouds?.all ?? '--' }}%</strong>
+              <strong>
+                {{ weather.clouds?.all ?? '--' }}%
+              </strong>
             </p>
 
           </div>
@@ -150,6 +176,7 @@
 
         <!-- SUNRISE AND SUNSET -->
         <div class="sun-times">
+
           <span>
             ☀ Sunrise:
             {{
@@ -167,6 +194,7 @@
                 : '--'
             }}
           </span>
+
         </div>
 
       </section>
@@ -187,6 +215,7 @@
             class="hour-card"
             *ngFor="let forecast of forecastData"
           >
+
             <p>
               {{ forecast.dt * 1000 | date:'h a' }}
             </p>
@@ -203,9 +232,14 @@
               }}
             </span>
 
+            <!-- CONVERTED HOURLY TEMPERATURE -->
             <h3>
-              {{ forecast.main?.temp | number:'1.0-0' }}°
+              {{
+                convertTemperature(forecast.main?.temp)
+                  | number:'1.0-0'
+              }}°
             </h3>
+
           </div>
 
           <p *ngIf="!loading && forecastData.length === 0">
@@ -213,6 +247,7 @@
           </p>
 
         </div>
+
       </section>
 
       <!-- BOTTOM DASHBOARD GRID -->
@@ -227,9 +262,12 @@
               <p>Upcoming weather conditions</p>
             </div>
 
-            <span class="forecast-label">This Week</span>
+            <span class="forecast-label">
+              This Week
+            </span>
           </div>
 
+          <!-- DAILY FORECAST -->
           <div
             class="forecast-row"
             *ngFor="let day of dailyForecast"
@@ -245,6 +283,7 @@
               </p>
             </div>
 
+            <!-- WEATHER ICON -->
             <span class="forecast-icon">
               {{
                 day.weather === 'Clear' ? '☀️' :
@@ -257,18 +296,28 @@
               }}
             </span>
 
+            <!-- WEATHER DESCRIPTION -->
             <p class="condition">
               {{ day.description }}
             </p>
 
+            <!-- CONVERTED DAILY TEMPERATURES -->
             <div class="forecast-temp">
+
               <strong>
-                {{ day.tempMax | number:'1.0-0' }}°
+                {{
+                  convertTemperature(day.tempMax)
+                    | number:'1.0-0'
+                }}°
               </strong>
 
               <span>
-                {{ day.tempMin | number:'1.0-0' }}°
+                {{
+                  convertTemperature(day.tempMin)
+                    | number:'1.0-0'
+                }}°
               </span>
+
             </div>
 
           </div>
@@ -305,9 +354,11 @@
               <span>👁️</span>
 
               <h2>
-                {{ weather.visibility != null
-                  ? (weather.visibility / 1000 | number:'1.0-1')
-                  : '--' }} km
+                {{
+                  weather.visibility != null
+                    ? (weather.visibility / 1000 | number:'1.0-1')
+                    : '--'
+                }} km
               </h2>
 
               <small>Visibility</small>
@@ -317,7 +368,11 @@
             <div class="highlight-card">
               <p>Pressure</p>
               <span>🌡️</span>
-              <h2>{{ weather.main?.pressure ?? '--' }}</h2>
+
+              <h2>
+                {{ weather.main?.pressure ?? '--' }}
+              </h2>
+
               <small>hPa</small>
             </div>
 
@@ -325,11 +380,16 @@
             <div class="highlight-card">
               <p>Wind Direction</p>
               <span>🧭</span>
-              <h2>{{ weather.wind?.deg ?? '--' }}°</h2>
+
+              <h2>
+                {{ weather.wind?.deg ?? '--' }}°
+              </h2>
+
               <small>Degrees</small>
             </div>
 
           </div>
+
         </section>
 
       </div>
@@ -350,4 +410,5 @@
     </footer>
 
   </main>
+
 </div>

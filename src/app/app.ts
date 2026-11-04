@@ -13,6 +13,23 @@ import { WeatherService } from './services/weather';
 })
 export class App implements OnInit {
 
+  // Temperature unit
+unit: 'C' | 'F' = 'C';
+
+// Toggle temperature unit
+toggleTemperature(): void {
+  this.unit = this.unit === 'C' ? 'F' : 'C';
+}
+
+// Convert Celsius to Fahrenheit
+convertTemperature(temp: number): number {
+  if (this.unit === 'C') {
+    return temp;
+  }
+
+  return (temp * 9 / 5) + 32;
+}
+
   private cdr = inject(ChangeDetectorRef);
 
 

@@ -531,3 +531,47 @@ footer {
   opacity: 0.6;
   cursor: not-allowed;
 }
+
+
+/* HEADER ACTIONS */
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+/* TEMPERATURE UNIT TOGGLE */
+.unit-toggle {
+  background: #122642;
+  color: #69b2ff;
+  border: 1px solid #3989ff;
+  border-radius: 12px;
+  padding: 10px 16px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 600;
+  transition: 0.3s ease;
+
+  span {
+    margin-left: 8px;
+    color: #ffffff;
+  }
+
+  &:hover {
+    background: #193452;
+    transform: translateY(-2px);
+  }
+}
+
+/* MOBILE RESPONSIVENESS */
+@media (max-width: 600px) {
+  .header-actions {
+    gap: 10px;
+  }
+
+  .unit-toggle {
+    padding: 8px 12px;
+    font-size: 12px;
+  }
+}

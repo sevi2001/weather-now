@@ -1,6 +1,12 @@
+
 import { CommonModule, DecimalPipe, DatePipe } from '@angular/common';
 import { forkJoin } from 'rxjs';
-import { Component, OnInit, inject, ChangeDetectorRef } from '@angular/core';
+import {
+  Component,
+  OnInit,
+  inject,
+  ChangeDetectorRef
+} from '@angular/core';
 
 import { WeatherService } from './services/weather';
 
@@ -13,145 +19,183 @@ import { WeatherService } from './services/weather';
 })
 export class App implements OnInit {
 
-  recentCities: string[] = [];
-  loadRecentCities(): void {
-  const savedCities = localStorage.getItem('recentCities');
-
-  if (savedCities) {
-    this.recentCities = JSON.parse(savedCities);
-  }
-}
-
-addRecentCity(city: string): void {
-  this.recentCities = [
-    city,
-    ...this.recentCities.filter(
-      recentCity => recentCity.toLowerCase() !== city.toLowerCase()
-    )
-  ].slice(0, 5);
-
-  localStorage.setItem(
-    'recentCities',
-    JSON.stringify(this.recentCities)
-  );
-}
-
-selectRecentCity(city: string): void {
-  this.loadWeather(city);
-}
-
-  favoriteCities: string[] = [];
-  // Load favorite cities from Local Storage
-loadFavorites(): void {
-  const savedFavorites = localStorage.getItem('weatherFavorites');
-
-  if (savedFavorites) {
-    this.favoriteCities = JSON.parse(savedFavorites);
-  }
-}
-
-// Add or remove a favorite city
-toggleFavorite(): void {
-  if (!this.weatherData) {
-    return;
-  }
-
-  const city = this.weatherData.name;
-
-  if (this.favoriteCities.includes(city)) {
-    this.favoriteCities = this.favoriteCities.filter(
-      favorite => favorite !== city
-    );
-  } else {
-    this.favoriteCities.push(city);
-  }
-
-  localStorage.setItem(
-    'weatherFavorites',
-    JSON.stringify(this.favoriteCities)
-  );
-}
-
-// Check if current city is a favorite
-isFavorite(): boolean {
-  return this.weatherData
-    ? this.favoriteCities.includes(this.weatherData.name)
-    : false;
-}
-
-// Load weather for a favorite city
-selectFavorite(city: string): void {
-  this.loadWeather(city);
-}
-
-  // Temperature unit
-unit: 'C' | 'F' = 'C';
-
-// Toggle temperature unit
-toggleTemperature(): void {
-  this.unit = this.unit === 'C' ? 'F' : 'C';
-}
-
-// Convert Celsius to Fahrenheit
-convertTemperature(temp: number): number {
-  if (this.unit === 'C') {
-    return temp;
-  }
-
-  return (temp * 9 / 5) + 32;
-}
+  // ==============================
+  // SERVICES
+  // ==============================
 
   private cdr = inject(ChangeDetectorRef);
+  private weatherService = inject(WeatherService);
 
+  // ==============================
+  // DASHBOARD INFORMATION
+  // ==============================
 
-  // Dashboard title and current date
   title = 'WeatherNow';
   today = new Date();
 
-  // Weather service
-  private weatherService = inject(WeatherService);
+  // ==============================
+  // WEATHER DATA
+  // ==============================
 
-  // Weather information
   weatherData: any = null;
   forecastData: any[] = [];
   dailyForecast: any[] = [];
 
-  // Loading and error states
   loading = true;
   errorMessage = '';
 
-  // Load default weather when dashboard starts
-  ngOnInit(): void {
-      this.loadFavorites();
-    this.loadWeather('Colombo');
-    this.loadRecentCities();
+  // ==============================
+  // TEMPERATURE UNIT
+  // ==============================
+
+  unit: 'C' | 'F' = 'C';
+
+  toggleTemperature(): void {
+    this.unit = this.unit === 'C' ? 'F' : 'C';
   }
 
-  // Search weather by city
+  convertTemperature(temp: number): number {
+    if (this.unit === 'C') {
+      return temp;
+    }
+
+    return (temp * 9 / 5) + 32;
+  }
+
+  // ==============================
+  // FAVORITE CITIES
+  // ==============================
+
+  favoriteCities: string[] = [];
+
+  loadFavorites(): void {
+    try {
+      const savedFavorites = localStorage.getItem('weatherFavorites');
+
+      if (savedFavorites) {
+        const parsed = JSON.parse(savedFavorites);
+
+        this.favoriteCities = Array.isArray(parsed) ? parsed : [];
+      }
+    } catch (error) {
+      console.error('Error loading favorite cities:', error);
+      this.favoriteCities = [];
+    }
+  }
+
+  toggleFavorite(): void {
+    if (!this.weatherData) {
+      return;
+    }
+
+    const city = this.weatherData.name;
+
+    const alreadyFavorite = this.favoriteCities.some(
+      favorite => favorite.toLowerCase() === city.toLowerCase()
+    );
+
+    if (alreadyFavorite) {
+      this.favoriteCities = this.favoriteCities.filter(
+        favorite => favorite.toLowerCase() !== city.toLowerCase()
+      );
+    } else {
+      this.favoriteCities.push(city);
+    }
+
+    localStorage.setItem(
+      'weatherFavorites',
+      JSON.stringify(this.favoriteCities)
+    );
+  }
+
+  isFavorite(): boolean {
+    return this.weatherData
+      ? this.favoriteCities.some(
+          favorite =>
+            favorite.toLowerCase() === this.weatherData.name.toLowerCase()
+        )
+      : false;
+  }
+
+  selectFavorite(city: string): void {
+    this.loadWeather(city);
+  }
+
+  // ==============================
+  // RECENT SEARCH HISTORY
+  // ==============================
+
+  recentCities: string[] = [];
+
+  loadRecentCities(): void {
+    try {
+      const savedCities = localStorage.getItem('recentCities');
+
+      if (savedCities) {
+        const parsed = JSON.parse(savedCities);
+
+        this.recentCities = Array.isArray(parsed) ? parsed : [];
+      }
+    } catch (error) {
+      console.error('Error loading recent cities:', error);
+      this.recentCities = [];
+    }
+  }
+
+  addRecentCity(city: string): void {
+    this.recentCities = [
+      city,
+      ...this.recentCities.filter(
+        recentCity => recentCity.toLowerCase() !== city.toLowerCase()
+      )
+    ].slice(0, 5);
+
+    localStorage.setItem(
+      'recentCities',
+      JSON.stringify(this.recentCities)
+    );
+  }
+
+  selectRecentCity(city: string): void {
+    this.loadWeather(city);
+  }
+
+  // ==============================
+  // INITIALIZE APPLICATION
+  // ==============================
+
+  ngOnInit(): void {
+    this.loadFavorites();
+    this.loadRecentCities();
+
+    this.loadWeather('Colombo');
+  }
+
+  // ==============================
+  // LOAD WEATHER DATA
+  // ==============================
+
   loadWeather(city: string): void {
 
     const searchCity = city.trim();
 
-    // Validate city input
     if (!searchCity) {
       this.errorMessage = 'Please enter a city name.';
       return;
     }
 
-    // Start loading
     this.loading = true;
     this.errorMessage = '';
 
-    // Fetch current weather and forecast together
     forkJoin({
       current: this.weatherService.getCurrentWeather(searchCity),
       forecast: this.weatherService.getForecast(searchCity)
     }).subscribe({
 
-      // Successful API response
+      // SUCCESS
       next: (result) => {
-        console.log('API DATA RECEIVED:', result);
-console.log('Before loading false:', this.loading);
+
+        console.log('WEATHER API DATA:', result);
 
         // Current weather
         this.weatherData = result.current;
@@ -166,7 +210,9 @@ console.log('Before loading false:', this.loading);
 
         data.list.forEach((item: any) => {
 
-          const date = new Date(item.dt * 1000).toLocaleDateString();
+          const date = new Date(
+            item.dt * 1000
+          ).toLocaleDateString();
 
           if (!dailyData[date]) {
 
@@ -197,27 +243,36 @@ console.log('Before loading false:', this.loading);
         // Display up to five forecast days
         this.dailyForecast = Object.values(dailyData).slice(0, 5);
 
+        // Save recent search
+        this.addRecentCity(this.weatherData.name);
+
         // Stop loading
-      
         this.loading = false;
+
         this.cdr.detectChanges();
-        console.log('After loading false:', this.loading);
 
         console.log('Weather loaded successfully:', this.weatherData);
 
-        this.addRecentCity(this.weatherData.name);
       },
 
-      // API error handling
+      // ERROR
       error: (error) => {
 
-        console.error('Weather API error:', error);
+        console.error('WEATHER API ERROR:', error);
+        console.error('HTTP STATUS:', error.status);
+        console.error('ERROR MESSAGE:', error.message);
+        console.error('SERVER RESPONSE:', error.error);
 
         this.weatherData = null;
         this.forecastData = [];
         this.dailyForecast = [];
 
-        if (error.status === 401) {
+        if (error.status === 0) {
+
+          this.errorMessage =
+            'Unable to connect to the weather server. Please check your connection or API server.';
+
+        } else if (error.status === 401) {
 
           this.errorMessage =
             'Invalid API key. Please check your OpenWeather API key.';
@@ -225,22 +280,30 @@ console.log('Before loading false:', this.loading);
         } else if (error.status === 404) {
 
           this.errorMessage =
-            'City not found. Please enter a valid city name.';
+            'City not found or weather API endpoint unavailable.';
 
         } else if (error.status === 429) {
 
           this.errorMessage =
             'API request limit reached. Please try again later.';
 
+        } else if (error.status >= 500) {
+
+          this.errorMessage =
+            'Weather server error. Please try again later.';
+
         } else {
 
           this.errorMessage =
-            'Unable to load weather. Please check your internet connection and try again.';
+            error.error?.message ||
+            'Unable to load weather. Please try again.';
 
         }
 
         // Stop loading even when API fails
         this.loading = false;
+
+        this.cdr.detectChanges();
 
       }
 

@@ -44,3 +44,8 @@ __screenshots__/
 Thumbs.db
 
 src/app/services/weather-api-key.ts
+.vercel
+.env*
+
+.env.local
+.env

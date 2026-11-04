@@ -3,6 +3,22 @@
 
   <!-- SIDEBAR -->
   <aside class="sidebar">
+    <div class="recent-section">
+  <p class="menu-title">RECENT SEARCHES</p>
+
+  <div
+    class="recent-city"
+    *ngFor="let city of recentCities"
+    (click)="selectRecentCity(city)"
+  >
+    <span>🕘</span>
+    <span>{{ city }}</span>
+  </div>
+
+  <p class="no-recent" *ngIf="recentCities.length === 0">
+    No recent searches yet.
+  </p>
+</div>
     <div class="logo">
       <span class="logo-icon">☁</span>
       <span>Weather<span class="blue">Now</span></span>

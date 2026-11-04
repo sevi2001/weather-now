@@ -13,6 +13,33 @@ import { WeatherService } from './services/weather';
 })
 export class App implements OnInit {
 
+  recentCities: string[] = [];
+  loadRecentCities(): void {
+  const savedCities = localStorage.getItem('recentCities');
+
+  if (savedCities) {
+    this.recentCities = JSON.parse(savedCities);
+  }
+}
+
+addRecentCity(city: string): void {
+  this.recentCities = [
+    city,
+    ...this.recentCities.filter(
+      recentCity => recentCity.toLowerCase() !== city.toLowerCase()
+    )
+  ].slice(0, 5);
+
+  localStorage.setItem(
+    'recentCities',
+    JSON.stringify(this.recentCities)
+  );
+}
+
+selectRecentCity(city: string): void {
+  this.loadWeather(city);
+}
+
   favoriteCities: string[] = [];
   // Load favorite cities from Local Storage
 loadFavorites(): void {
@@ -97,6 +124,7 @@ convertTemperature(temp: number): number {
   ngOnInit(): void {
       this.loadFavorites();
     this.loadWeather('Colombo');
+    this.loadRecentCities();
   }
 
   // Search weather by city
@@ -177,6 +205,7 @@ console.log('Before loading false:', this.loading);
 
         console.log('Weather loaded successfully:', this.weatherData);
 
+        this.addRecentCity(this.weatherData.name);
       },
 
       // API error handling

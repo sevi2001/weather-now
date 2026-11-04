@@ -1,4 +1,4 @@
-import { WEATHER_API_KEY } from './weather-api-key';
+
 import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
@@ -10,30 +10,22 @@ export class WeatherService {
 
   private http = inject(HttpClient);
 
-  private apiKey = WEATHER_API_KEY;
-
-  private currentWeatherUrl =
-    'https://api.openweathermap.org/data/2.5/weather';
-
-  private forecastUrl =
-    'https://api.openweathermap.org/data/2.5/forecast';
+  private weatherUrl = '/api/weather';
 
   getCurrentWeather(city: string): Observable<any> {
-    return this.http.get<any>(this.currentWeatherUrl, {
+    return this.http.get<any>(this.weatherUrl, {
       params: {
-        q: city,
-        appid: this.apiKey,
-        units: 'metric'
+        city: city,
+        type: 'current'
       }
     });
   }
 
   getForecast(city: string): Observable<any> {
-    return this.http.get<any>(this.forecastUrl, {
+    return this.http.get<any>(this.weatherUrl, {
       params: {
-        q: city,
-        appid: this.apiKey,
-        units: 'metric'
+        city: city,
+        type: 'forecast'
       }
     });
   }

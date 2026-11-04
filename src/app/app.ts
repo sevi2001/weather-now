@@ -13,6 +13,50 @@ import { WeatherService } from './services/weather';
 })
 export class App implements OnInit {
 
+  favoriteCities: string[] = [];
+  // Load favorite cities from Local Storage
+loadFavorites(): void {
+  const savedFavorites = localStorage.getItem('weatherFavorites');
+
+  if (savedFavorites) {
+    this.favoriteCities = JSON.parse(savedFavorites);
+  }
+}
+
+// Add or remove a favorite city
+toggleFavorite(): void {
+  if (!this.weatherData) {
+    return;
+  }
+
+  const city = this.weatherData.name;
+
+  if (this.favoriteCities.includes(city)) {
+    this.favoriteCities = this.favoriteCities.filter(
+      favorite => favorite !== city
+    );
+  } else {
+    this.favoriteCities.push(city);
+  }
+
+  localStorage.setItem(
+    'weatherFavorites',
+    JSON.stringify(this.favoriteCities)
+  );
+}
+
+// Check if current city is a favorite
+isFavorite(): boolean {
+  return this.weatherData
+    ? this.favoriteCities.includes(this.weatherData.name)
+    : false;
+}
+
+// Load weather for a favorite city
+selectFavorite(city: string): void {
+  this.loadWeather(city);
+}
+
   // Temperature unit
 unit: 'C' | 'F' = 'C';
 
@@ -51,6 +95,7 @@ convertTemperature(temp: number): number {
 
   // Load default weather when dashboard starts
   ngOnInit(): void {
+      this.loadFavorites();
     this.loadWeather('Colombo');
   }
 

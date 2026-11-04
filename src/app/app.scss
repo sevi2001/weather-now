@@ -575,3 +575,66 @@ footer {
     font-size: 12px;
   }
 }
+
+/* WEATHER ACTIONS */
+.weather-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+/* FAVORITE BUTTON */
+.favorite-btn {
+  background: #122642;
+  color: #69b2ff;
+  border: 1px solid #3989ff;
+  border-radius: 10px;
+  padding: 9px 14px;
+  cursor: pointer;
+  font-size: 13px;
+  transition: 0.3s ease;
+
+  &:hover {
+    background: #193452;
+    transform: translateY(-2px);
+  }
+
+  &.favorited {
+    color: #ffd166;
+    border-color: #ffd166;
+  }
+}
+
+/* FAVORITES SIDEBAR */
+.favorites-section {
+  margin-top: 28px;
+}
+
+.favorite-city {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px;
+  margin-bottom: 8px;
+  border-radius: 10px;
+  color: #c7d8ed;
+  cursor: pointer;
+  transition: 0.3s ease;
+
+  &:hover {
+    background: #193452;
+    color: #ffffff;
+  }
+}
+
+.favorite-star {
+  margin-left: auto;
+  color: #ffd166;
+}
+
+.no-favorites {
+  color: #8094ad;
+  font-size: 13px;
+  padding: 10px;
+}
